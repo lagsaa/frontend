@@ -1,0 +1,110 @@
+body {
+  font-family: 'Inter', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.light {
+  background: #f8f9fa;
+  color: #333;
+}
+
+body.dark {
+  background: #1e1e1e;
+  color: #ffffff;
+}
+
+/* To-Do Container */
+.todo-container {
+  max-width: 500px;
+  margin: 50px auto;
+  background: rgb(172, 168, 226);
+  padding: 20px;
+  border-radius: 12px; /* Updated for more rounded corners */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dark .todo-container {
+  background: #2c2c2c;
+  color: rgb(176, 202, 252);
+}
+
+/* Input & Button Styling */
+.todo-input {
+  width: calc(100% - 100px); /* Ensures the input doesn't overlap with the button */
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem; /* Enhanced font size for readability */
+  transition: border 0.3s ease;
+}
+
+.dark .todo-input {
+  background: #444;
+  border: 1px solid #666;
+  color: white;
+}
+
+.todo-button {
+  width: 90px; /* Fixed width to keep button inline with input */
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s ease-in-out;
+}
+
+.todo-button:hover {
+  background: #0056b3;
+  transform: scale(1.05); /* Subtle scale effect for button */
+}
+
+/* To-Do List Items */
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  margin-bottom: 8px; /* Increased spacing between items */
+  border-radius: 8px; /* Rounded corners for tasks */
+  background: #fafafa; /* Light background for tasks */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for task boxes */
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dark .todo-item {
+  background: #74707c;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.todo-item:hover {
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow on hover */
+}
+
+.completed {
+  text-decoration: line-through;
+  color: rgb(230, 50, 140);
+}
+
+/* Filter Buttons */
+.filter-buttons button {
+  padding: 10px 18px;
+  margin-right: 10px;
+  border-radius: 25px; /* More rounded filter buttons */
+  cursor: pointer;
+  font-weight: 500; /* Slightly bolder text for filter buttons */
+  transition: all 0.3s ease;
+}
+
+.filter-buttons button.active {
+  background: #007bff;
+  color: white;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow on active filter */
+}
+
+.filter-buttons button:hover {
+  background: #0056b3;
+  transform: scale(1.05); /* Hover effect to make button feel interactive */
+}
