@@ -3,12 +3,12 @@ import { useState, useEffect } from "react";
 const TodoList = () => {
   const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/tasks/")
+ useEffect(() => {
+    fetch("https://backend-kdkh.onrender.com/api/tasks/") // Updated URL
       .then((response) => response.json())
       .then((data) => setTasks(data))
       .catch((error) => console.error("Error fetching tasks:", error));
-  }, []);
+  }, []);  
 
   return (
     <div>
