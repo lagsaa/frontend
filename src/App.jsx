@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import "./index.css";
 
 const API_URL = "https://backend-kdkh.onrender.com/api/tasks/";
 
@@ -8,10 +9,16 @@ function App() {
   const [task, setTask] = useState("");
   const [filter, setFilter] = useState("all");
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("theme") === "dark");
+  const [editingTaskId, setEditingTaskId] = useState(null);
 
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    document.body.className = darkMode ? "dark" : "light";
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
 
   const fetchTasks = async () => {
     try {
@@ -22,45 +29,44 @@ function App() {
     }
   };
 
-  // Sync theme with localStorage
-  useEffect(() => {
-    document.body.className = darkMode ? "dark" : "light";
-    localStorage.setItem("theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
-
   const addTask = async () => {
     if (task.trim() === "") return;
-
     try {
       const response = await axios.post(API_URL, { title: task, completed: false });
-      setTasks([...tasks, response.data]); // Update state with new task from API
+      setTasks([...tasks, response.data]);
       setTask("");
     } catch (error) {
       console.error("Error adding task:", error);
     }
   };
 
-  const toggleComplete = (id) => {
-    setTasks(tasks.map((task) =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+  const deleteTask = async (id) => {
+    try {
+      await axios.delete(`${API_URL}${id}/`);
+      setTasks(tasks.filter((task) => task.id !== id));
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
-  const startEditing = (id) => {
-    setTasks(tasks.map((task) =>
-      task.id === id ? { ...task, isEditing: true } : task
-    ));
+  const updateTask = async (id, updatedTitle) => {
+    if (updatedTitle.trim() === "") return;
+    try {
+      const response = await axios.put(`${API_URL}${id}/`, { title: updatedTitle });
+      setTasks(tasks.map((task) => (task.id === id ? response.data : task)));
+      setEditingTaskId(null);
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   };
 
-  const saveEdit = (id, newText) => {
-    if (newText.trim() === "") return;
-    setTasks(tasks.map((task) =>
-      task.id === id ? { ...task, title: newText, isEditing: false } : task
-    ));
-  };
-
-  const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+  const toggleComplete = async (task) => {
+    try {
+      const response = await axios.patch(`${API_URL}${task.id}/`, { completed: !task.completed });
+      setTasks(tasks.map((t) => (t.id === task.id ? response.data : t)));
+    } catch (error) {
+      console.error("Error toggling task:", error);
+    }
   };
 
   const filteredTasks = tasks.filter((task) =>
@@ -79,63 +85,52 @@ function App() {
         <h1 className="text-4xl font-semibold text-left mt-10">To-Do List App</h1>
       </div>
 
-      {/* Add Task Section */}
       <div className="flex mb-6 space-x-2">
         <input 
           type="text"
           value={task}
           onChange={(e) => setTask(e.target.value)}
           placeholder="Add new task here"
-          className="todo-input text-base p-3 w-full rounded-l-md border border-gray-300 focus:ring-2 focus:ring-indigo-500 transition-all"
+          className="text-base p-3 w-full rounded-l-md border border-gray-300 focus:ring-2 focus:ring-indigo-500 transition-all"
         />
         <button 
           onClick={addTask} 
           className="bg-indigo-600 text-white px-4 py-3 rounded-r-md hover:scale-105 transition-all"
         >
-         ➕
+          ➕
         </button>
       </div>
 
-      {/* Filter Buttons Section */}
       <div className="filter-buttons mb-6 flex justify-center space-x-8">
-        <button 
-          onClick={() => setFilter("all")} 
-          className={`px-5 py-3 rounded-full transition-all ${filter === "all" ? "bg-indigo-600 text-white" : "bg-white text-gray-700 hover:bg-indigo-100"}`}
-        >
+        <button onClick={() => setFilter("all")} className={`px-5 py-3 rounded-full transition-all ${filter === "all" ? "bg-indigo-600 text-white" : "bg-white text-gray-700 hover:bg-indigo-100"}`}>
           All
         </button>
-        <button 
-          onClick={() => setFilter("completed")} 
-          className={`px-5 py-3 rounded-full transition-all ${filter === "completed" ? "bg-green-500 text-white" : "bg-white text-gray-700 hover:bg-green-100"}`}
-        >
+        <button onClick={() => setFilter("completed")} className={`px-5 py-3 rounded-full transition-all ${filter === "completed" ? "bg-green-500 text-white" : "bg-white text-gray-700 hover:bg-green-100"}`}>
           Completed
         </button>
-        <button 
-          onClick={() => setFilter("pending")} 
-          className={`px-5 py-3 rounded-full transition-all ${filter === "pending" ? "bg-red-500 text-white" : "bg-white text-gray-700 hover:bg-red-100"}`}
-        >
+        <button onClick={() => setFilter("pending")} className={`px-5 py-3 rounded-full transition-all ${filter === "pending" ? "bg-red-500 text-white" : "bg-white text-gray-700 hover:bg-red-100"}`}>
           Pending
         </button>
       </div>
 
-      {/* Task List Section */}
       <ul className="mt-4 space-y-6 px-10">
         {filteredTasks.map((task) => (
-          <li key={task.id} className={`todo-item flex justify-between items-center p-4 rounded-xl ${task.completed ? "bg-green-100" : "bg-white shadow-lg"} transition-all transform hover:scale-105`}>
+          <li key={task.id} className={`flex justify-between items-center p-4 rounded-xl ${task.completed ? "bg-green-100" : "bg-white shadow-lg"} transition-all transform hover:scale-105`}>
             <div className="flex items-center">
               <input 
                 type="checkbox" 
                 checked={task.completed} 
-                onChange={() => toggleComplete(task.id)} 
+                onChange={() => toggleComplete(task)} 
                 className="mr-4 border-2 rounded-lg p-2"
               />
-              {task.isEditing ? (
+              {editingTaskId === task.id ? (
                 <input 
                   type="text" 
                   defaultValue={task.title} 
-                  onBlur={(e) => saveEdit(task.id, e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && saveEdit(task.id, e.target.value)}
+                  onBlur={(e) => updateTask(task.id, e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && updateTask(task.id, e.target.value)}
                   className="border p-3 rounded-lg shadow-md transition-all"
+                  autoFocus
                 />
               ) : (
                 <span className={task.completed ? "line-through text-gray-400" : "text-lg"}>
@@ -144,25 +139,16 @@ function App() {
               )}
             </div>
             <div className="flex space-x-3">
-              {!task.isEditing ? (
-                <button 
-                  onClick={() => startEditing(task.id)} 
-                  className="text-indigo-600 hover:text-indigo-800 transition-all"
-                >
+              {editingTaskId !== task.id ? (
+                <button onClick={() => setEditingTaskId(task.id)} className="text-indigo-600 hover:text-indigo-800 transition-all">
                   ✏️ Edit
                 </button>
               ) : (
-                <button 
-                  onClick={() => saveEdit(task.id, task.title)} 
-                  className="text-green-600 hover:text-green-800 transition-all"
-                >
+                <button onClick={() => updateTask(task.id, task.title)} className="text-green-600 hover:text-green-800 transition-all">
                   💾 Save
                 </button>
               )}
-              <button 
-                onClick={() => deleteTask(task.id)} 
-                className="text-red-600 hover:text-red-800 transition-all"
-              >
+              <button onClick={() => deleteTask(task.id)} className="text-red-600 hover:text-red-800 transition-all">
                 🗑️ Delete
               </button>
             </div>
@@ -174,4 +160,3 @@ function App() {
 }
 
 export default App;
-
