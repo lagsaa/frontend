@@ -3,6 +3,8 @@ import axios from "axios";
 import "./index.css";
 
 const API_URL = "https://backend-kdkh.onrender.com/api/tasks/";
+fetch("https://backend-kdkh.onrender.com/api/tasks/")
+axios.get("https://backend-kdkh.onrender.com/api/tasks/")
 
 function App() {
   const [tasks, setTasks] = useState([]);
